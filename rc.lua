@@ -134,16 +134,9 @@ separator = wibox.widget.textbox()
 separator:set_markup(" |" )
 
 -- Volume widget
--- require('blingbling')
 volume_label = wibox.widget.textbox()
 volume_label:set_markup('♫ ')
--- volume_widget = blingbling.volume.new()
--- volume_widget:set_height(18)
--- volume_widget:set_v_margin(4)
--- volume_widget:set_width(20)
--- volume_widget:update_master()
--- volume_widget:set_master_control()
--- volume_wdiget:set_bar(true)
+
 volumecfg = {}
 volumecfg.cardid = 0
 volumecfg.channel = "Master"
