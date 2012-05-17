@@ -45,7 +45,7 @@ autorunApps = {
 }
 
 for app = 1, #autorunApps do
-  awful.util.spawn(autorunApps[app])
+  utils.run_once(autorunApps[app])
 end
 
 -- {{{ Variable definitions
