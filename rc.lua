@@ -144,76 +144,83 @@ volumecfg.step = 10
 volumecfg.current = nil
 volumecfg.previous = 0
 
-volumecfg.volume = function(mode, widget, value)
-	if mode == "init" then
-		local status = io.popen("amixer -c " .. volumecfg.cardid .. " -- sget " .. volumecfg.channel):read("*all")
+-- Initialize widget
+volumecfg.init = function(widget)
 
-		local vol = tonumber(string.match(status, "(%d?%d?%d)%%"))
-		volumecfg.current = vol
+	local status = io.popen("amixer -c " .. volumecfg.cardid .. " -- sget " .. volumecfg.channel):read("*all")
+	         
+	local vol = tonumber(string.match(status, "(%d?%d?%d)%%"))
+	volumecfg.current = vol
 
-		volumecfg.volume("update", widget, vol)
-
-	elseif mode == "update" then
-
-		local value = value or 0
-
-		local color = utils.gradient(0, 100, 100 - value)
-
-		status = ""
-		for i = 1, math.floor(value / volumecfg.step) do
-			status = status .. "|"
-		end
-		for i = math.floor(value / volumecfg.step) + 1, 100 / volumecfg.step do
-			status = status .. "-"
-		end
-		volumecfg.widget:set_markup("-[<span color='" .. color .. "'>" .. status .. "</span>]+")
-
-	elseif mode == "up" then
-
-		if volumecfg.current + volumecfg.step <= 100 then
-			volumecfg.current = volumecfg.current + volumecfg.step
-		else
-			volumecfg.current = 100
-		end
-		io.popen("amixer -q -c " .. volumecfg.cardid .. " sset " .. volumecfg.channel .. " " .. volumecfg.current .. "%"):read("*all")
-		volumecfg.volume("update", volumecfg.widget, volumecfg.current)
-
-	elseif mode == "down" then
-
-		if volumecfg.current - volumecfg.step >= 0 then
-			volumecfg.current = volumecfg.current - volumecfg.step
-		else
-			volumecfg.current = 0
-		end
-		io.popen("amixer -q -c " .. volumecfg.cardid .. " sset " .. volumecfg.channel .. " " .. volumecfg.current .. "%"):read("*all")
-		volumecfg.volume("update", volumecfg.widget, volumecfg.current)
-	elseif mode == "toggle" then
-
-		if volumecfg.current > 0 then
-			volumecfg.previous = volumecfg.current
-			volumecfg.current = 0
-			print(volumecfg.current)
-		else
-			volumecfg.current = volumecfg.previous
-			print(volumecfg.current)
-		end
-
-		io.popen("amixer -q -c " .. volumecfg.cardid .. " sset " .. volumecfg.channel .. " " .. volumecfg.current .. "%"):read("*all")
-		volumecfg.volume("update", volumecfg.widget, volumecfg.current)
-			
-	end
+	volumecfg.update(widget, vol)
 end
+
+-- Update sound to the given value in percents 
+-- and update widget markup
+volumecfg.update = function(widget, value)
+
+	local value = value or 0
+
+	-- Check value ranges
+	if value > 100 then value = 100
+	elseif value < 0 then value = 0 end
+
+	-- Set volume using amixer
+	io.popen("amixer -q -c " .. volumecfg.cardid .. " sset " .. volumecfg.channel .. " " .. value .. "%"):read("*all")
+	volumecfg.current = value
+
+	-- Get relative color for this value of volume
+	local color = utils.gradient(0, 100, 100 - value)
+
+	-- Draw widget markup
+	status = ""
+	for i = 1, math.floor(value / volumecfg.step) do
+		status = status .. "|"
+	end
+	for i = math.floor(value / volumecfg.step) + 1, 100 / volumecfg.step do
+		status = status .. "-"
+	end
+	volumecfg.widget:set_markup("-[<span color='" .. color .. "'>" .. status .. "</span>]+")
+end
+
+-- Set volume up on a widget.step value
+volumecfg.up = function(widget)
+
+	volumecfg.update(volumecfg.widget, volumecfg.current + volumecfg.step)
+end
+
+-- Set volume down on a widget.step value
+volumecfg.down = function(widget)
+
+	volumecfg.update(volumecfg.widget, volumecfg.current - volumecfg.step)
+end
+
+-- Toogle volume value.
+-- If value is bigger then "0", then it sets to "0".
+-- If value is "0", then volume set to the previous value.
+volumecfg.toggle = function(widget)
+
+	if volumecfg.current > 0 then
+		volumecfg.previous = volumecfg.current
+		volumecfg.update(volumecfg.widget, 0)
+	else
+		volumecfg.update(volumecfg.widget, volumecfg.previous)
+	end
+
+	volumecfg.update(volumecfg.widget, volumecfg.current)
+end
+
 volumecfg.widget = wibox.widget.textbox()
 volumecfg.widget:buttons(awful.util.table.join(
-	awful.button({ }, 1, function () volumecfg.volume("toggle", volume_widget) end),
-	awful.button({ }, 2, function () volumecfg.volume("toggle", volume_widget) end),
-	awful.button({ }, 3, function () volumecfg.volume("toggle", volume_widget) end),
-	awful.button({ }, 4, function () volumecfg.volume("up", volume_widget) end),
-	awful.button({ }, 5, function () volumecfg.volume("down", volume_widget) end)
+	awful.button({ }, 1, function () volumecfg.toggle(volume_widget) end),
+	awful.button({ }, 2, function () volumecfg.toggle(volume_widget) end),
+	awful.button({ }, 3, function () volumecfg.toggle(volume_widget) end),
+	awful.button({ }, 4, function () volumecfg.up(volume_widget) end),
+	awful.button({ }, 5, function () volumecfg.down(volume_widget) end)
     )
 )
 
-volumecfg.volume("init", volume_widget)
+volumecfg.init(volume_widget)
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -364,8 +371,8 @@ globalkeys = awful.util.table.join(
 
     awful.key({ modkey, "Control" }, "n", awful.client.restore),
 	awful.key({					  }, "Print", function () awful.util.spawn("scrot -e 'mv $f ~/Pictures/ 2>/dev/null'") end),
-	awful.key({ modkey, 		  }, ".", function () volumecfg.volume("up", volume_widget) end),
-	awful.key({ modkey, 		  }, ",", function () volumecfg.volume("down", volume_widget) end),
+	awful.key({ modkey, 		  }, ".", function () volumecfg.up(volume_widget) end),
+	awful.key({ modkey, 		  }, ",", function () volumecfg.down(volume_widget) end),
 
     -- Prompt
     awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
