@@ -142,6 +142,7 @@ volumecfg.cardid = 0
 volumecfg.channel = "Master"
 volumecfg.step = 10
 volumecfg.current = nil
+volumecfg.previous = 0
 
 volumecfg.volume = function(mode, widget, value)
 	if mode == "init" then
@@ -186,14 +187,29 @@ volumecfg.volume = function(mode, widget, value)
 		end
 		io.popen("amixer -q -c " .. volumecfg.cardid .. " sset " .. volumecfg.channel .. " " .. volumecfg.current .. "%"):read("*all")
 		volumecfg.volume("update", volumecfg.widget, volumecfg.current)
+	elseif mode == "toggle" then
 
+		if volumecfg.current > 0 then
+			volumecfg.previous = volumecfg.current
+			volumecfg.current = 0
+			print(volumecfg.current)
+		else
+			volumecfg.current = volumecfg.previous
+			print(volumecfg.current)
+		end
+
+		io.popen("amixer -q -c " .. volumecfg.cardid .. " sset " .. volumecfg.channel .. " " .. volumecfg.current .. "%"):read("*all")
+		volumecfg.volume("update", volumecfg.widget, volumecfg.current)
+			
 	end
 end
 volumecfg.widget = wibox.widget.textbox()
 volumecfg.widget:buttons(awful.util.table.join(
+	awful.button({ }, 1, function () volumecfg.volume("toggle", volume_widget) end),
+	awful.button({ }, 2, function () volumecfg.volume("toggle", volume_widget) end),
+	awful.button({ }, 3, function () volumecfg.volume("toggle", volume_widget) end),
 	awful.button({ }, 4, function () volumecfg.volume("up", volume_widget) end),
-	awful.button({ }, 5, function () volumecfg.volume("down", volume_widget) end),
-	awful.button({ }, 2, function () volume("mute", volume_widget) end)
+	awful.button({ }, 5, function () volumecfg.volume("down", volume_widget) end)
     )
 )
 
