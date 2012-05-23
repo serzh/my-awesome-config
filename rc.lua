@@ -182,7 +182,7 @@ volumecfg.update = function(widget, value)
 	elseif value < 0 then value = 0 end
 
 	-- Set volume using amixer
-	io.popen("amixer -q -c " .. volumecfg.cardid .. " sset " .. volumecfg.channel .. " " .. value .. "%"):read("*all")
+	awful.util.spawn("amixer -q -c " .. volumecfg.cardid .. " sset " .. volumecfg.channel .. " " .. value .. "%")
 	volumecfg.current = value
 
 	-- Get relative color for this value of volume
