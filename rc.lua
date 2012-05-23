@@ -138,10 +138,26 @@ volume_label = wibox.widget.textbox()
 volume_label:set_markup('♫ ')
 
 volumecfg = {}
+
+-- Card id
+-- You can view it by running:
+-- 		$ aplay -l
 volumecfg.cardid = 0
+
+-- Channel id
+-- You can view it by running:
+-- 		$ amixer -c <card_number>
+-- The default is "Master"
 volumecfg.channel = "Master"
+
+-- Step for setting volume up and down
 volumecfg.step = 10
+
+-- Current value of volume
 volumecfg.current = nil
+
+-- Previous value of volume
+-- Used by "toggle" function 
 volumecfg.previous = 0
 
 -- Initialize widget
