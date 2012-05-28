@@ -161,19 +161,19 @@ volumecfg.current = nil
 volumecfg.previous = 0
 
 -- Initialize widget
-volumecfg.init = function(widget)
+volumecfg.init = function()
 
 	local status = io.popen("amixer -c " .. volumecfg.cardid .. " -- sget " .. volumecfg.channel):read("*all")
 	         
 	local vol = tonumber(string.match(status, "(%d?%d?%d)%%"))
 	volumecfg.current = vol
 
-	volumecfg.update(widget, vol)
+	volumecfg.update(vol)
 end
 
 -- Update sound to the given value in percents 
 -- and update widget markup
-volumecfg.update = function(widget, value)
+volumecfg.update = function(value)
 
 	local value = value or 0
 
@@ -200,27 +200,27 @@ volumecfg.update = function(widget, value)
 end
 
 -- Set volume up on a widget.step value
-volumecfg.up = function(widget)
+volumecfg.up = function()
 
-	volumecfg.update(volumecfg.widget, volumecfg.current + volumecfg.step)
+	volumecfg.update(volumecfg.current + volumecfg.step)
 end
 
 -- Set volume down on a widget.step value
-volumecfg.down = function(widget)
+volumecfg.down = function()
 
-	volumecfg.update(volumecfg.widget, volumecfg.current - volumecfg.step)
+	volumecfg.update(volumecfg.current - volumecfg.step)
 end
 
 -- Toogle volume value.
 -- If value is bigger then "0", then it sets to "0".
 -- If value is "0", then volume set to the previous value.
-volumecfg.toggle = function(widget)
+volumecfg.toggle = function()
 
 	if volumecfg.current > 0 then
 		volumecfg.previous = volumecfg.current
-		volumecfg.update(volumecfg.widget, 0)
+		volumecfg.update(0)
 	else
-		volumecfg.update(volumecfg.widget, volumecfg.previous)
+		volumecfg.update(volumecfg.previous)
 	end
 
 	volumecfg.update(volumecfg.widget, volumecfg.current)
@@ -228,15 +228,15 @@ end
 
 volumecfg.widget = wibox.widget.textbox()
 volumecfg.widget:buttons(awful.util.table.join(
-	awful.button({ }, 1, function () volumecfg.toggle(volume_widget) end),
-	awful.button({ }, 2, function () volumecfg.toggle(volume_widget) end),
-	awful.button({ }, 3, function () volumecfg.toggle(volume_widget) end),
-	awful.button({ }, 4, function () volumecfg.up(volume_widget) end),
-	awful.button({ }, 5, function () volumecfg.down(volume_widget) end)
+	awful.button({ }, 1, function () volumecfg.toggle() end),
+	awful.button({ }, 2, function () volumecfg.toggle() end),
+	awful.button({ }, 3, function () volumecfg.toggle() end),
+	awful.button({ }, 4, function () volumecfg.up() end),
+	awful.button({ }, 5, function () volumecfg.down() end)
     )
 )
 
-volumecfg.init(volume_widget)
+volumecfg.init()
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -387,8 +387,8 @@ globalkeys = awful.util.table.join(
 
     awful.key({ modkey, "Control" }, "n", awful.client.restore),
 	awful.key({					  }, "Print", function () awful.util.spawn("scrot -e 'mv $f ~/Pictures/ 2>/dev/null'") end),
-	awful.key({ modkey, 		  }, ".", function () volumecfg.up(volume_widget) end),
-	awful.key({ modkey, 		  }, ",", function () volumecfg.down(volume_widget) end),
+	awful.key({ modkey, 		  }, ".", function () volumecfg.up() end),
+	awful.key({ modkey, 		  }, ",", function () volumecfg.down() end),
 
     -- Prompt
     awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
