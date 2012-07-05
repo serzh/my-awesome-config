@@ -1,4 +1,8 @@
 my-awesome-config
 =================
 
-my awesome config
+Requirments:
+ * kbdd
+ * amixer
+ * setxkb
+ * slock
