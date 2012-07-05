@@ -222,8 +222,6 @@ volumecfg.toggle = function()
 	else
 		volumecfg.update(volumecfg.previous)
 	end
-
-	volumecfg.update(volumecfg.widget, volumecfg.current)
 end
 
 volumecfg.widget = wibox.widget.textbox()
@@ -390,6 +388,9 @@ globalkeys = awful.util.table.join(
 	awful.key({ modkey, 		  }, ".", function () volumecfg.up() end),
 	awful.key({ modkey, 		  }, ",", function () volumecfg.down() end),
 
+    -- Screen locker
+	awful.key({ modkey, 		  }, "F1", function () awful.util.spawn("slock") end),
+
     -- Prompt
     awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
     awful.key({ modkey },            ";",     function () mypromptbox[mouse.screen]:run() end),
@@ -489,6 +490,8 @@ awful.rules.rules = {
       properties = { floating = true } },
     { rule = { class = "gimp" },
       properties = { floating = true } },
+	{ rule = { class = "Gajim" },
+	  properties = { floating = true } },
     -- Set Firefox to always map on tags number 2 of screen 1.
     -- { rule = { class = "Firefox" },
     --   properties = { tag = tags[1][2] } },
