@@ -13,6 +13,8 @@ require("menubar")
 -- Utils
 require("utils")
 
+require("launchbar")
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -87,7 +89,7 @@ layouts =
 tags = {}
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
-    tags[s] = awful.tag({ "α", "β", "δ", "λ", "θ", "Ω"}, s, { layouts[2], layouts[3], layouts[4], layouts[5], layouts[4], layouts[3] })
+    tags[s] = awful.tag({ "τ", "ε", "ω", "μ", "π", "σ"}, s, { layouts[2], layouts[3], layouts[4], layouts[5], layouts[4], layouts[3] })
 end
 -- }}}
 
@@ -305,6 +307,7 @@ for s = 1, screen.count() do
     local left_layout = wibox.layout.fixed.horizontal()
     left_layout:add(mylauncher)
     left_layout:add(mytaglist[s])
+    --left_layout:add(launchbar.new())
     left_layout:add(mypromptbox[s])
 
     -- Widgets that are aligned to the right
@@ -318,6 +321,7 @@ for s = 1, screen.count() do
     right_layout:add(separator)
     right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])
+
 
     -- Now bring it all together (with the tasklist in the middle)
     local layout = wibox.layout.align.horizontal()
