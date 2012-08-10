@@ -15,6 +15,8 @@ require("utils")
 
 require("launchbar")
 
+infojets = require("infojets")
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -113,6 +115,17 @@ mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
 -- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
+
+wbox = infojets.create_wibox({x = 130, y = 420, width = 450, height = 280, bg_color = "#FFFFFF20" })
+rssreader = infojets.rssreader.new()
+rssreader:add_source("https://www.archlinux.org/feeds/news/")
+rssreader:add_source("http://feeds.feedburner.com/nettuts")
+rssreader:add_source("http://feeds.feedburner.com/codinghorror")
+--rssreader:add_source("http://www.bbc.co.uk/russian/rolling_news/index.xml")
+-- for debug only
+--rssreader:add_source("http://www.archlinux.org/feeds/packages/")
+rssreader:run()
+wbox:set_widget(rssreader.widget)
 
 -- {{{ Wibox
 -- Create a textclock widget
